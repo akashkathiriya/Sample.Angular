@@ -1,0 +1,137 @@
+<div class="content" role="main">
+
+  <mat-tab-group animationDuration="0ms" (selectedTabChange)="RenderDetailedView($event)">
+    <mat-tab label="Summary View">
+      <table class="table table-borderless table-condensed table-hover" *ngIf="parentsData.length > 0">
+        <thead>
+          <tr>
+
+            <th>SamplingTime</th>
+            <th scope="col" *ngFor="let item of parentsData[0].Properties;index as x">
+              {{item.Label}}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let parent of parentsData; index as i">
+            <td>
+              {{ parent.SamplingTime | date:"dd/MM/yyyy HH:mm a" }}
+            </td>
+            <ng-template ngFor let-item [ngForOf]="parentsData[0].Properties" let-j="index">
+              <!-- <td *ngIf="item.Label == parent.Properties[i].Label">
+                
+                <div *ngIf="IsObject(parent.Properties[i].Value); then thenBlock else elseBlock"></div>
+                <ng-template #thenBlock>{{ parent.Properties[j].Value.Value }}</ng-template>
+                <ng-template #elseBlock>{{ parent.Properties[j].Value}}</ng-template>
+
+              </td>
+              <td *ngIf="item.Label !== parent.Properties[i].Label">
+                {{ item.Label}} = {{parent.Properties[j].Label}} 
+              </td> -->
+              <td> 
+                <div *ngIf="IsObject(findValue(parent.Properties, item.Label)); then thenBlock else elseBlock"></div>
+                <ng-template #thenBlock>{{ findValue(parent.Properties, item.Label).Value }}</ng-template>
+                <ng-template #elseBlock>{{ findValue(parent.Properties, item.Label) }}</ng-template>
+
+                
+              
+              </td>
+            </ng-template>
+            <!-- <td>
+              {{ parent.Properties[0].Value}}
+            </td>
+            <td
+              *ngIf="parent.Properties[1] != undefined && parent.Properties[1].Label == parentsData[0].Properties[1].Label">
+              <div *ngIf="IsObject(parent.Properties[1].Value); then thenBlock else elseBlock"></div>
+              <ng-template #thenBlock>{{ parent.Properties[1].Value.Value }}</ng-template>
+              <ng-template #elseBlock>{{ parent.Properties[1].Value}}</ng-template>
+            </td>
+            <td
+              *ngIf="parent.Properties[1] != undefined && parent.Properties[1].Label !== parentsData[0].Properties[1].Label">
+              1
+            </td>
+            <td *ngIf="parent.Properties[2] != undefined">
+              <div *ngIf="IsObject(parent.Properties[2].Value); then thenBlock1 else elseBlock1"></div>
+              <ng-template #thenBlock1>{{ parent.Properties[2].Value.Value }}</ng-template>
+              <ng-template #elseBlock1>{{ parent.Properties[2].Value}}</ng-template>
+
+            </td>
+            <td
+              *ngIf="parent.Properties[2] == undefined || parent.Properties[2].Label !== parentsData[0].Properties[2].Label">
+              2
+            </td>
+            <td
+              *ngIf="parent.Properties[3] != undefined && parent.Properties[3].Label == parentsData[0].Properties[3].Label">
+              {{ parent.Properties[3].Value.Value}}
+            </td> -->
+            <!-- <td
+              *ngIf="parent.Properties[3] == undefined || parent.Properties[3].Label == parentsData[0].Properties[3].Label">
+              3
+            </td> -->
+            <!-- <td *ngFor="let property of parent.Properties; index as j">
+              <div *ngIf="IsObject(property.Value); then thenBlock else elseBlock"></div>
+              <ng-template #thenBlock>{{ property.Value.Value }}</ng-template>
+              <ng-template #elseBlock>{{property.Value}}</ng-template>
+            </td> -->
+          </tr>
+        </tbody>
+      </table>
+    </mat-tab>
+    <mat-tab label="Detailed View">
+      <div class="custom" style="width: 90%;">
+        <div class="row">
+          <div class="col-md-3">
+            <div class="list-group">
+              <ng-template ngFor let-parent [ngForOf]="parentsData" let-i="index" let-odd="odd">
+                <a href="#" class="list-group-item list-group-item-action" [class.active]="selectedIndex === i"
+                  (click)="getFormProperties(parent.SamplingTime,i)">
+                  {{parent.SamplingTime | date:"dd/MM/yyyy HH:mm a" }}
+                </a>
+              </ng-template>
+            </div>
+          </div>
+          <div class="col-md-9" *ngIf="questions.length > 0">
+            <div>
+              <form (ngSubmit)="onSubmit()" [formGroup]="form">
+                <div *ngFor="let question of questions" class="">
+                  <div [formGroup]="form">
+
+                    <div class="row" style="padding: 10px;">
+                      <div class="col-md-3">
+                        <label [attr.for]="question.key">{{question.label}}</label>
+                      </div>
+                      <div class="col-md-9" [ngSwitch]="question.controlType">
+                        <!-- <div > -->
+                        <input *ngSwitchCase="'textbox'" [formControlName]="question.key" [id]="question.key"
+                          [type]="question.type" [value]="question.value" class="form-control">
+
+                        <label *ngSwitchCase="'checkbox'" [formControlName]="question.key">
+                          <input type="checkbox" [id]="question.key" [type]="question.type" [value]="question.value"
+                            (change)="changeChecked($event)" [checked]="question.value">
+                        </label>
+                        <!-- </div> -->
+                        <!-- <div class="errorMessage" *ngIf="!isValidMessage && isShowMessageKey == question.key">{{question.label}} is required</div> -->
+                      </div>
+                    </div>
+                  </div>
+                  <!-- <app-render-element [question]="question" [form]="form"></app-render-element> -->
+                </div>
+
+                <div class="form-row">
+                  <button type="submit" class="btn btn-primary mr-1">Save</button>
+                  <!-- [disabled]="!form.valid" -->
+                </div>
+              </form>
+              <!-- <div *ngIf="payLoad" class="form-row">
+                <strong>Saved the following values</strong><br>{{payLoad}}
+              </div> -->
+            </div>
+            <!-- <app-dynamic-form [questions]="questions$ | async"></app-dynamic-form> -->
+          </div>
+        </div>
+      </div>
+      <!-- <app-summary-and-detailed></app-summary-and-detailed> -->
+    </mat-tab>
+  </mat-tab-group>
+</div>
+<!-- <router-outlet></router-outlet> -->
